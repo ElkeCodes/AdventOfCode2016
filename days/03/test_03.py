@@ -1,117 +1,52 @@
-def part_1(input_data):
-    keypad = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
-    result = 0
-    coordinate = (1, 1)
-    for line in input_data.strip().split("\n"):
-        for direction in list(line):
-            (x, y) = coordinate
-            match direction:
-                case "U":
-                    coordinate = (x, max(0, y - 1))
-                case "R":
-                    coordinate = (min(2, x + 1), y)
-                case "D":
-                    coordinate = (x, min(2, y + 1))
-                case "L":
-                    coordinate = (max(0, x - 1), y)
-        result *= 10
-        (x, y) = coordinate
-        result += keypad[y][x]
-    return result
+from itertools import batched, chain
+
+
+def is_valid_triangle(sides: map[int]) -> bool:
+    a, b, c = sides
+    return a + b > c and a + c > b and b + c > a
+
+
+def count_valid_triangles(lines: list[int]) -> int:
+    return sum(map(is_valid_triangle, lines))
 
 
 def test_part_1_example():
-    assert (
-        part_1(
-            """ULL
-RRDDD
-LURDL
-UUUUD"""
-        )
-        == 1985
-    )
+    assert count_valid_triangles([(5, 10, 25)]) == 0
 
 
 def test_part_1_actual():
-    with open("days/02/input.txt") as f:
+    with open("days/03/input.txt") as f:
         input_data = f.read()
-    assert part_1(input_data) == 14894
+    lines = [list(map(int, line.split())) for line in input_data.strip().split("\n")]
+    assert count_valid_triangles(lines) == 993
 
 
-"""
-    1
-  2 3 4
-5 6 7 8 9
-  A B C
-    D
-
-"""
+def transform(lines: list[str]) -> list[str]:
+    lines = [[int(value) for value in row.split()] for row in lines]
+    return list(batched(chain(*zip(*lines)), 3))
 
 
-def part_2(input_data):
-    keypad = [
-        [None, None, 1, None, None],
-        [None, 2, 3, 4, None],
-        [5, 6, 7, 8, 9],
-        [None, "A", "B", "C", None],
-        [None, None, "D", None, None],
+def test_transform_lines():
+    assert transform(
+        """101 301 501
+102 302 502
+103 303 503
+201 401 601
+202 402 602
+203 403 603
+""".strip().split("\n")
+    ) == [
+        (101, 102, 103),
+        (201, 202, 203),
+        (301, 302, 303),
+        (401, 402, 403),
+        (501, 502, 503),
+        (601, 602, 603),
     ]
-    result = ""
-    coordinate = (0, 2)
-    for line in input_data.strip().split("\n"):
-        for direction in list(line):
-            (x, y) = coordinate
-            match direction:
-                case "U":
-                    (new_x, new_y) = (x, y - 1)
-                    if (
-                        0 <= new_y < len(keypad)
-                        and 0 <= new_x < len(keypad[new_y])
-                        and keypad[new_y][new_x]
-                    ):
-                        coordinate = (new_x, new_y)
-                case "R":
-                    (new_x, new_y) = (x + 1, y)
-                    if (
-                        0 <= new_y < len(keypad)
-                        and 0 <= new_x < len(keypad[new_y])
-                        and keypad[new_y][new_x]
-                    ):
-                        coordinate = (new_x, new_y)
-                case "D":
-                    (new_x, new_y) = (x, y + 1)
-                    if (
-                        0 <= new_y < len(keypad)
-                        and 0 <= new_x < len(keypad[new_y])
-                        and keypad[new_y][new_x]
-                    ):
-                        coordinate = (new_x, new_y)
-                case "L":
-                    (new_x, new_y) = (x - 1, y)
-                    if (
-                        0 <= new_y < len(keypad)
-                        and 0 <= new_x < len(keypad[new_y])
-                        and keypad[new_y][new_x]
-                    ):
-                        coordinate = (new_x, new_y)
-        (x, y) = coordinate
-        result += str(keypad[y][x])
-    return result
-
-
-def test_part_2_example():
-    assert (
-        part_2(
-            """ULL
-RRDDD
-LURDL
-UUUUD"""
-        )
-        == "5DB3"
-    )
 
 
 def test_part_2_actual():
-    with open("days/02/input.txt") as f:
+    with open("days/03/input.txt") as f:
         input_data = f.read()
-    assert part_2(input_data) == "26B96"
+    lines = input_data.strip().split("\n")
+    assert count_valid_triangles(transform(lines)) == 1849

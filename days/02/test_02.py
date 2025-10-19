@@ -58,16 +58,6 @@ def test_part_1_actual():
     assert part_1(input_data) == "14894"
 
 
-"""
-    1
-  2 3 4
-5 6 7 8 9
-  A B C
-    D
-
-"""
-
-
 def part_2(input_data):
     keypad = [
         [None, None, 1, None, None],
